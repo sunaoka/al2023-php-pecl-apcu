@@ -14,21 +14,23 @@ TARGET := build-arm64-8.1 \
 
 all: build
 
-build: $(TARGET)
+build: rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz $(TARGET)
 
 rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz:
 	curl -f -o $@ -LO https://pecl.php.net/get/$(@F)
 
-build-arm64-%: rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz
-	docker build --build-arg PLATFORM=linux/arm64 --build-arg PHP_VER=$* -t $(IMAGE):php-$*-arm64 .
-	docker run --rm $(MOUNT) $(IMAGE):php-$*-arm64
+build-%:
+	$(eval PLATFORM = $(word 1,$(subst -, ,$*)))
+	$(eval PHP_VER = $(word 2,$(subst -, ,$*)))
 
-build-amd64-%:
-	docker build --build-arg PLATFORM=linux/amd64 --build-arg PHP_VER=$* -t $(IMAGE):php-$*-amd64 .
-	docker run --rm $(MOUNT) $(IMAGE):php-$*-amd64
+	docker build --build-arg PLATFORM=linux/$(PLATFORM) --build-arg PHP_VER=$(PHP_VER) -t $(IMAGE):php-$(PHP_VER)-$(PLATFORM) .
+	docker run --rm $(MOUNT) $(IMAGE):php-$(PHP_VER)-$(PLATFORM)
 
 clean:
 	-$(RM) -r rpmbuild/{RPMS,SRPMS}
 	-$(RM) rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz
 
-.PHONY: all build clean
+clean-image:
+	-docker rmi $(shell docker images --filter=reference="$(IMAGE):*" -q)
+
+.PHONY: all build clean clean-image
