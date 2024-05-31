@@ -1,4 +1,4 @@
-%global php_name   php%{?php_ver}
+%global php_name   php
 
 %global pecl_name  apcu
 
@@ -11,7 +11,7 @@
 %global have_devel 1
 
 Summary:       APCu - APC User Cache
-Name:          %{php_name}-pecl-%{pecl_name}
+Name:          %{php_name}%{php_ver}-pecl-%{pecl_name}
 Version:       5.1.23
 Release:       1%{?dist}.0.1
 License:       PHP

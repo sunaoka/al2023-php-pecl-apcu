@@ -7,16 +7,25 @@ MOUNT := -v ./rpmbuild/SOURCES:/root/rpmbuild/SOURCES \
          -v ./rpmbuild/RPMS:/root/rpmbuild/RPMS \
          -v ./rpmbuild/SRPMS:/root/rpmbuild/SRPMS
 
+TARGET := build-arm64-8.1 \
+          build-arm64-8.2 \
+          build-amd64-8.1 \
+          build-amd64-8.2
+
 all: build
 
-build: build-arm64 build-amd64
+build: $(TARGET)
 
 rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz:
 	curl -f -o $@ -LO https://pecl.php.net/get/$(@F)
 
-build-%: rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz
-	docker build --build-arg PLATFORM=linux/$* -t $(IMAGE):$* .
-	docker run --rm $(MOUNT) $(IMAGE):$*
+build-arm64-%: rpmbuild/SOURCES/apcu-$(APCU_VERSION).tgz
+	docker build --build-arg PLATFORM=linux/arm64 --build-arg PHP_VER=$* -t $(IMAGE):php-$*-arm64 .
+	docker run --rm $(MOUNT) $(IMAGE):php-$*-arm64
+
+build-amd64-%:
+	docker build --build-arg PLATFORM=linux/amd64 --build-arg PHP_VER=$* -t $(IMAGE):php-$*-amd64 .
+	docker run --rm $(MOUNT) $(IMAGE):php-$*-amd64
 
 clean:
 	-$(RM) -r rpmbuild/{RPMS,SRPMS}
