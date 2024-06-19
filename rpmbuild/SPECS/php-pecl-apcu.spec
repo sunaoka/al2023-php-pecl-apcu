@@ -173,7 +173,7 @@ NO_INTERACTION=true make test
 %endif
 
 %changelog
-* Fri May 31 2024 SUNAOKA Norifumi <tquirk@amazon.com> - 5.1.23-1
+* Fri May 31 2024 SUNAOKA Norifumi <sunaoka@pocari.org> - 5.1.23-1
 - Update 5.1.23
 - Removed panel
 
